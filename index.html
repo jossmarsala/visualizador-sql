@@ -34,8 +34,8 @@
     <span class="intro-tip-icon">💡</span>
     <div class="intro-tip-body">
       <strong>¿Primera vez aquí?</strong> — Empezá por <strong>Overview</strong> para ver el sistema completo, luego
-      <strong>Tablas</strong> para entender cada entidad, y terminá con <strong>Flujo</strong> para ver el ciclo de vida
-      real de una suscripción y sesión de traducción.
+      <strong>Tablas</strong> para entender cada entidad, y terminá con <strong>Reglas de Negocio</strong> para entender
+      las decisiones de diseño detrás de cada restricción.
     </div>
     <button class="intro-tip-close" onclick="document.getElementById('introTip').style.display='none'"
       aria-label="Cerrar">✕</button>
@@ -47,7 +47,7 @@
     <button class="nav-tab" data-tab="tables">📦 Tablas <span class="tab-sub">detalle por tabla</span></button>
     <button class="nav-tab" data-tab="relations">🔗 Relaciones <span class="tab-sub">cómo se conectan</span></button>
     <button class="nav-tab" data-tab="logic">⚙️ Lógica <span class="tab-sub">triggers · procs · views</span></button>
-    <button class="nav-tab" data-tab="flow">🌊 Flujo <span class="tab-sub">paso a paso</span></button>
+    <button class="nav-tab" data-tab="flow">📋 Reglas de Negocio <span class="tab-sub">clasificación</span></button>
   </nav>
 
   <main class="content">
@@ -280,180 +280,280 @@
     </section>
 
     <!-- ══════════════════════════════════════════ -->
-    <!--  TAB 5 — FLOW                             -->
+    <!--  TAB 5 — BUSINESS RULES                   -->
     <!-- ══════════════════════════════════════════ -->
     <section class="section" id="sec-flow">
 
-      <h2 class="section-title">🌊 Ciclo de Vida en SignAI</h2>
-      <p class="section-desc">El recorrido completo: desde que un usuario se registra hasta que completa una sesión de
-        traducción, paga su suscripción y deja su feedback.</p>
+      <h2 class="section-title">📋 Reglas del Negocio y su Clasificación</h2>
+      <p class="section-desc">Cada decisión de diseño de la base de datos responde a una regla de negocio. Aquí se documentan
+        todas las reglas organizadas por módulo y su clasificación formal.</p>
 
-      <div class="flow-container">
-
-        <div class="flow-label">Paso 1 · El usuario se registra en SignAI</div>
-        <div class="flow-row">
-          <div class="flow-box emerald">PROVINCIA → LOCALIDAD</div>
-          <span class="flow-arrow labeled">ubica →</span>
-          <div class="flow-box blue">USUARIO</div>
-          <span style="font-size:11px;color:var(--text-muted);margin-left:8px">sp_alta_usuario_freemium()</span>
-        </div>
-
-        <div class="flow-arrow down">↓</div>
-
-        <div class="flow-label">Paso 2 · El usuario elige un plan y se suscribe</div>
-        <div class="flow-row">
-          <div class="flow-box blue">USUARIO</div>
-          <span class="flow-arrow labeled">contrata →</span>
-          <div class="flow-box blue">SUSCRIPCION</div>
-          <span class="flow-arrow labeled">basada en →</span>
-          <div class="flow-box blue">PLAN_SUSCRIPCION</div>
-        </div>
-        <div class="flow-row">
-          <span style="min-width:60px"></span>
-          <span style="font-size:12px;color:var(--accent-rose);margin:0 8px">← 🔒 trigger valida fechas (fin &gt;
-            inicio)</span>
-        </div>
-
-        <div class="flow-arrow down">↓</div>
-
-        <div class="flow-label">Paso 3 · Se emite la factura y se cobra</div>
-        <div class="flow-row">
-          <div class="flow-box blue">SUSCRIPCION</div>
-          <span class="flow-arrow labeled">genera →</span>
-          <div class="flow-box amber">FACTURA</div>
-          <span class="flow-arrow labeled">tiene líneas →</span>
-          <div class="flow-box amber">DETALLE_FACTURA</div>
-        </div>
-        <div class="flow-row">
-          <span style="min-width:60px"></span>
-          <div class="flow-box amber">PAGO_FACTURA</div>
-          <span style="font-size:12px;color:var(--accent-rose);margin:0 8px">← 🔒 trigger bloquea borrado si tiene
-            pagos</span>
-        </div>
-        <div class="flow-row">
-          <div class="flow-box amber">FORMA_PAGO</div>
-          <span class="flow-arrow labeled">+</span>
-          <div class="flow-box amber">MEDIO_PAGO</div>
-          <span style="font-size:11px;color:var(--text-muted);margin-left:8px">ej: "Pago Anual Adelantado" + "Tarjeta de
-            Crédito"</span>
-        </div>
-
-        <div class="flow-arrow down">↓</div>
-
-        <div class="flow-label">Paso 4 · El usuario inicia una sesión de traducción</div>
-        <div class="flow-row">
-          <div class="flow-box blue">USUARIO</div>
-          <span class="flow-arrow labeled">inicia →</span>
-          <div class="flow-box purple">SESION_TRADUCCION</div>
-          <span style="font-size:12px;color:var(--accent-rose);margin:0 8px">← 🔒 trigger valida suscripción
-            activa</span>
-        </div>
-        <div class="flow-row">
-          <div class="flow-box purple">VERSION_MODELO</div>
-          <span class="flow-arrow labeled">procesa →</span>
-          <div class="flow-box purple">SESION_TRADUCCION</div>
-          <span class="flow-arrow labeled">desde →</span>
-          <div class="flow-box purple">PLATAFORMA_ORIGEN</div>
-        </div>
-
-        <div class="flow-arrow down">↓</div>
-
-        <div class="flow-label">Paso 5 · El motor detecta señas con nivel de confianza</div>
-        <div class="flow-row">
-          <div class="flow-box purple">SESION_TRADUCCION</div>
-          <span class="flow-arrow labeled">↔ reconoce</span>
-          <div class="flow-box purple">SENA</div>
-          <span style="font-size:11px;color:var(--text-muted);margin-left:8px">vía SESION_SENA (confianza 0–100%)</span>
-        </div>
-        <div class="flow-row">
-          <span style="min-width:60px"></span>
-          <span style="font-size:12px;color:var(--accent-rose);margin:0 8px">← 🔒 trigger rechaza confianza fuera de
-            rango [0, 100]</span>
-        </div>
-
-        <div class="flow-arrow down">↓</div>
-
-        <div class="flow-label">Paso 6 · El usuario puntúa la sesión y se registran errores</div>
-        <div class="flow-row">
-          <div class="flow-box purple">SESION_TRADUCCION</div>
-          <span class="flow-arrow labeled">genera →</span>
-          <div class="flow-box rose">FEEDBACK_SESION</div>
-          <span style="font-size:12px;color:var(--text-secondary);margin-left:8px">⭐ puntuación 1–5 + comentario
-            (1:1)</span>
-        </div>
-        <div class="flow-row">
-          <div class="flow-box purple">SESION_TRADUCCION</div>
-          <span class="flow-arrow labeled">registra →</span>
-          <div class="flow-box rose">LOG_ERROR</div>
-          <span style="font-size:11px;color:var(--text-muted);margin-left:8px">incidentes técnicos del motor de
-            IA</span>
-        </div>
-
+      <!-- LEGEND -->
+      <div class="br-legend">
+        <span class="br-badge estructural">🏗 Estructural</span>
+        <span class="br-legend-desc">Define entidades, atributos, cardinalidades o dominios estáticos</span>
+        <span class="br-badge operacional">⚙️ Operacional</span>
+        <span class="br-legend-desc">Limita estados lógicos o rangos de datos en tiempo de ejecución</span>
+        <span class="br-badge procedimiento">⚡ Procedimiento</span>
+        <span class="br-legend-desc">Estímulo → Respuesta automática (triggers, flujos)</span>
       </div>
 
-      <h2 class="section-title rose" style="margin-top:40px">🔒 Impacto de los Triggers</h2>
-      <p class="section-desc">Los triggers actúan como barreras de seguridad invisibles. Se disparan solos cuando
-        alguien intenta una operación prohibida.</p>
+      <!-- ── MÓDULO 1 ── -->
+      <div class="br-module">
+        <div class="br-module-header blue">
+          <span class="br-module-icon">👤</span>
+          <div>
+            <div class="br-module-title">MÓDULO 1: Gestión de Usuarios y Suscripciones</div>
+            <div class="br-module-sub">Identidad, geografía, planes y estados de suscripción</div>
+          </div>
+        </div>
+        <div class="br-rules">
 
-      <div class="flow-container">
-        <div class="flow-row">
-          <div class="flow-box blue" style="font-size:11px">INSERT en SESION_SENA</div>
-          <span class="flow-arrow">→</span>
-          <div class="flow-box rose">trg_validar_confianza_ia</div>
-          <span class="flow-arrow">→</span>
-          <div class="flow-box amber">❌ bloquea si confianza &lt; 0 o &gt; 100</div>
+          <div class="br-rule">
+            <div class="br-rule-head">
+              <span class="br-rule-num">1</span>
+              <span class="br-rule-name">Usuarios</span>
+              <span class="br-badge estructural">🏗 Estructural</span>
+            </div>
+            <p class="br-rule-body">El sistema debe permitir el registro de usuarios. De cada uno se almacenará su <strong>identificador único</strong>, nombre, apellido, <strong>correo electrónico</strong> (único e irrepetible), <strong>nombre de usuario</strong> (único e irrepetible), fecha de registro y un ID de localidad (para cumplir con la atomicidad geográfica).</p>
+            <div class="br-rule-why">Define la existencia de la entidad <em>usuario</em>, sus atributos y establece restricciones estáticas de unicidad (UNIQUE) para el email y el nombre de usuario.</div>
+          </div>
+
+          <div class="br-rule">
+            <div class="br-rule-head">
+              <span class="br-rule-num">2</span>
+              <span class="br-rule-name">Gestión Geográfica</span>
+              <span class="br-badge estructural">🏗 Estructural</span>
+            </div>
+            <p class="br-rule-body">Para garantizar la atomicidad de los datos, la ubicación del usuario se gestiona mediante un <strong>catálogo normalizado</strong>, almacenando la <strong>Provincia</strong> (nombre y país) y la <strong>Localidad</strong> (nombre y provincia a la que pertenece).</p>
+            <div class="br-rule-why">Define la topología del modelo relacional y la relación de dependencia entre las tablas geográficas y el usuario.</div>
+          </div>
+
+          <div class="br-rule">
+            <div class="br-rule-head">
+              <span class="br-rule-num">3</span>
+              <span class="br-rule-name">Planes de Suscripción</span>
+              <span class="br-badge estructural">🏗 Estructural (Hecho)</span>
+            </div>
+            <p class="br-rule-body">SignAI ofrecerá distintos planes detallando su <strong>nombre</strong>, <strong>precio mensual</strong>, descripción y <strong>límite de minutos</strong> por traducción.</p>
+            <div class="br-rule-why">Establece una entidad de catálogo (planes) y los dominios de sus atributos.</div>
+          </div>
+
+          <div class="br-rule">
+            <div class="br-rule-head">
+              <span class="br-rule-num">4</span>
+              <span class="br-rule-name">Estado de Suscripción</span>
+              <span class="br-badge estructural">🏗 Estructural</span>
+            </div>
+            <p class="br-rule-body">El ciclo de vida de una suscripción debe estar estrictamente delimitado a uno de los siguientes tres estados: <strong>"Activa"</strong>, <strong>"Vencida"</strong> o <strong>"Cancelada"</strong>. Al darse de alta, el sistema asignará el estado <strong>"Activa"</strong> por defecto.</p>
+            <div class="br-rule-why">Restringe el dominio del atributo a una lista cerrada y predefinida de valores válidos — implementado mediante un tipo de dato <code>ENUM</code>.</div>
+          </div>
+
+          <div class="br-rule">
+            <div class="br-rule-head">
+              <span class="br-rule-num">5</span>
+              <span class="br-rule-name">Historial de Suscripciones</span>
+              <span class="br-badge estructural">🏗 Estructural</span>
+            </div>
+            <p class="br-rule-body">El sistema debe guardar el <strong>historial de todas las suscripciones</strong> que ha contratado el usuario a lo largo del tiempo (relación <strong>1:N</strong>).</p>
+            <div class="br-rule-why">Define la cardinalidad histórica entre el usuario y sus transacciones sin limitar su accionar.</div>
+          </div>
+
+          <div class="br-rule">
+            <div class="br-rule-head">
+              <span class="br-rule-num">6</span>
+              <span class="br-rule-name">Límite de Suscripción Activa</span>
+              <span class="br-badge operacional">⚙️ Operacional</span>
+            </div>
+            <p class="br-rule-body">Un usuario puede tener <strong>una única suscripción en estado "Activa"</strong> al mismo tiempo.</p>
+            <div class="br-rule-why">Limita el estado lógico de los datos, impidiendo estados superpuestos.</div>
+          </div>
+
         </div>
-        <div style="height:12px"></div>
-        <div class="flow-row">
-          <div class="flow-box blue" style="font-size:11px">DELETE en FACTURA</div>
-          <span class="flow-arrow">→</span>
-          <div class="flow-box rose">trg_evitar_borrado_factura_pagada</div>
-          <span class="flow-arrow">→</span>
-          <div class="flow-box amber">❌ bloquea si tiene pagos registrados</div>
+      </div>
+
+      <!-- ── MÓDULO 2 ── -->
+      <div class="br-module">
+        <div class="br-module-header amber">
+          <span class="br-module-icon">💳</span>
+          <div>
+            <div class="br-module-title">MÓDULO 2: Facturas y Pagos</div>
+            <div class="br-module-sub">Comprobantes, detalles, transacciones y medios de pago</div>
+          </div>
         </div>
-        <div style="height:12px"></div>
-        <div class="flow-row">
-          <div class="flow-box blue" style="font-size:11px">INSERT en SUSCRIPCION</div>
-          <span class="flow-arrow">→</span>
-          <div class="flow-box rose">trg_fechas_suscripcion_coherentes</div>
-          <span class="flow-arrow">→</span>
-          <div class="flow-box amber">❌ bloquea si fecha_fin ≤ fecha_inicio</div>
+        <div class="br-rules">
+
+          <div class="br-rule">
+            <div class="br-rule-head">
+              <span class="br-rule-num">1</span>
+              <span class="br-rule-name">Facturación Detallada</span>
+              <span class="br-badge procedimiento">⚡ Procedimiento</span>
+            </div>
+            <p class="br-rule-body">Toda suscripción de pago genera una <strong>factura</strong> detallando el tipo de comprobante, fecha de emisión y total. A su vez, debe tener un <strong>detalle atómico</strong> desglosando el concepto cobrado, cantidad, precio unitario y subtotal.</p>
+            <div class="br-rule-why">El acto de suscribirse (estímulo) dispara la creación obligatoria de una factura cabecera y su detalle (respuesta) — Restricción de Estímulo/Respuesta.</div>
+          </div>
+
+          <div class="br-rule">
+            <div class="br-rule-head">
+              <span class="br-rule-num">2</span>
+              <span class="br-rule-name">Pagos Flexibles</span>
+              <span class="br-badge estructural">🏗 Estructural</span>
+            </div>
+            <p class="br-rule-body">El sistema permite que una factura sea abonada a través de <strong>múltiples pagos</strong>, registrando el monto exacto abonado, la fecha de pago, y vinculándolo a catálogos normalizados de <strong>forma de pago</strong> (ej. débito automático) y <strong>medio de pago</strong> (ej. tarjeta de crédito, USDT).</p>
+            <div class="br-rule-why">Afirma una relación 1:N entre la factura y los pagos, y la dependencia a los catálogos financieros.</div>
+          </div>
+
         </div>
-        <div style="height:12px"></div>
-        <div class="flow-row">
-          <div class="flow-box blue" style="font-size:11px">UPDATE en PLAN_SUSCRIPCION</div>
-          <span class="flow-arrow">→</span>
-          <div class="flow-box rose">trg_prevenir_precio_negativo</div>
-          <span class="flow-arrow">→</span>
-          <div class="flow-box amber">❌ bloquea si precio_mensual &lt; 0</div>
+      </div>
+
+      <!-- ── MÓDULO 3 ── -->
+      <div class="br-module">
+        <div class="br-module-header purple">
+          <span class="br-module-icon">🤖</span>
+          <div>
+            <div class="br-module-title">MÓDULO 3: Motor de Traducción</div>
+            <div class="br-module-sub">Señas, modelos IA, sesiones y reconocimiento</div>
+          </div>
         </div>
-        <div style="height:12px"></div>
-        <div class="flow-row">
-          <div class="flow-box blue" style="font-size:11px">DELETE en USUARIO</div>
-          <span class="flow-arrow">→</span>
-          <div class="flow-box rose">trg_proteger_usuario_facturado</div>
-          <span class="flow-arrow">→</span>
-          <div class="flow-box amber">❌ bloquea si tiene historial de facturas</div>
+        <div class="br-rules">
+
+          <div class="br-rule">
+            <div class="br-rule-head">
+              <span class="br-rule-num">1</span>
+              <span class="br-rule-name">Diccionario de Señas</span>
+              <span class="br-badge estructural">🏗 Estructural</span>
+            </div>
+            <p class="br-rule-body">El sistema mantendrá un catálogo de las señas que el motor es capaz de reconocer. De cada seña se registra un <strong>código</strong>, el <strong>significado en texto</strong>, la <strong>categoría</strong> (saludos, abecedario, verbos) y la <strong>ruta del archivo de validación</strong>.</p>
+            <div class="br-rule-why">Define la entidad base del motor de traducción y los atributos requeridos.</div>
+          </div>
+
+          <div class="br-rule">
+            <div class="br-rule-head">
+              <span class="br-rule-num">2</span>
+              <span class="br-rule-name">Versiones del Modelo IA</span>
+              <span class="br-badge estructural">🏗 Estructural</span>
+            </div>
+            <p class="br-rule-body">SignAI evolucionará. Se debe registrar cada <strong>versión del modelo de inteligencia artificial</strong> (ej. v1.0), su <strong>fecha de despliegue</strong> y sus <strong>notas de mejora</strong>.</p>
+            <div class="br-rule-why">Define la entidad de trazabilidad del modelo.</div>
+          </div>
+
+          <div class="br-rule">
+            <div class="br-rule-head">
+              <span class="br-rule-num">3</span>
+              <span class="br-rule-name">Sesiones de Traducción</span>
+              <span class="br-badge estructural">🏗 Estructural</span>
+            </div>
+            <p class="br-rule-body">Cuando un usuario utiliza el sistema, se genera una <strong>Sesión</strong>. Una sesión pertenece a un solo usuario y es procesada por una única versión del modelo IA. Se guarda la <strong>fecha</strong>, <strong>hora de inicio</strong>, <strong>duración</strong>, <strong>tipo de salida</strong> (texto o audio), <strong>total de señas traducidas</strong> e <strong>ID de plataforma</strong> de origen.</p>
+            <div class="br-rule-why">Define cardinalidades vitales — relaciones 1:N desde Usuario, Versión y Plataforma hacia la Sesión.</div>
+          </div>
+
+          <div class="br-rule">
+            <div class="br-rule-head">
+              <span class="br-rule-num">4</span>
+              <span class="br-rule-name">Registro de Señas Detectadas</span>
+              <span class="br-badge estructural">🏗 Estructural</span>
+            </div>
+            <p class="br-rule-body">En una misma sesión se pueden detectar <strong>múltiples señas</strong>, y una seña es detectada en <strong>múltiples sesiones</strong>. El sistema debe registrar exactamente qué señas se detectaron en qué sesión y el <strong>porcentaje de confianza</strong> del reconocimiento.</p>
+            <div class="br-rule-why">Resuelve la cardinalidad N:M entre Sesión y Seña, creando la tabla intermedia <code>SESION_SENA</code> con el atributo de Confianza.</div>
+          </div>
+
         </div>
-        <div style="height:12px"></div>
-        <div class="flow-row">
-          <div class="flow-box blue" style="font-size:11px">UPDATE precio en PLAN</div>
-          <span class="flow-arrow">→</span>
-          <div class="flow-box rose">trg_auditar_cambio_precio</div>
-          <span class="flow-arrow">→</span>
-          <div class="flow-box amber">✅ guarda historial en AUDITORIA_PRECIOS</div>
+      </div>
+
+      <!-- ── MÓDULO 4 ── -->
+      <div class="br-module">
+        <div class="br-module-header rose">
+          <span class="br-module-icon">⭐</span>
+          <div>
+            <div class="br-module-title">MÓDULO 4: Calidad y Soporte</div>
+            <div class="br-module-sub">Feedback de sesiones, puntajes y registro de errores</div>
+          </div>
         </div>
-        <div style="height:12px"></div>
-        <div class="flow-row">
-          <div class="flow-box blue" style="font-size:11px">INSERT en SESION_TRADUCCION</div>
-          <span class="flow-arrow">→</span>
-          <div class="flow-box rose">trg_control_acceso_sesion</div>
-          <span class="flow-arrow">→</span>
-          <div class="flow-box amber">❌ bloquea si suscripción no Activa</div>
+        <div class="br-rules">
+
+          <div class="br-rule">
+            <div class="br-rule-head">
+              <span class="br-rule-num">1</span>
+              <span class="br-rule-name">Registro del Feedback</span>
+              <span class="br-badge estructural">🏗 Estructural</span>
+            </div>
+            <p class="br-rule-body">Al finalizar una sesión de traducción, el usuario puede calificar la precisión del sistema. Cada sesión puede tener un <strong>único registro de feedback</strong> que incluye una <strong>puntuación numérica</strong> y un <strong>comentario opcional</strong>.</p>
+            <div class="br-rule-why">Define la relación 1:1 entre la Sesión y la tabla de Feedback.</div>
+          </div>
+
+          <div class="br-rule">
+            <div class="br-rule-head">
+              <span class="br-rule-num">2</span>
+              <span class="br-rule-name">Límite de Puntuación</span>
+              <span class="br-badge operacional">⚙️ Operacional</span>
+            </div>
+            <p class="br-rule-body">El valor de la puntuación otorgada por el usuario en el feedback debe estar estrictamente comprendido <strong>entre 1 y 5</strong>.</p>
+            <div class="br-rule-why">Limita el dominio del atributo a un rango matemático específico mediante un control (<code>CHECK</code>).</div>
+          </div>
+
+          <div class="br-rule">
+            <div class="br-rule-head">
+              <span class="br-rule-num">3</span>
+              <span class="br-rule-name">Historial de Errores (Logs)</span>
+              <span class="br-badge procedimiento">⚡ Procedimiento</span>
+            </div>
+            <p class="br-rule-body">Si durante una sesión ocurre un error, el sistema debe registrar el incidente guardando la <strong>descripción textual del error</strong> y vinculándolo al <strong>ID de la sesión</strong> específica donde ocurrió.</p>
+            <div class="br-rule-why">Define un flujo de acción automático: ante una falla, se reacciona insertando un registro en la tabla de logs.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── MEJORA ── -->
+      <div class="br-module">
+        <div class="br-module-header sky">
+          <span class="br-module-icon">🌟</span>
+          <div>
+            <div class="br-module-title">MEJORA DEL SISTEMA: Módulo de Personalización y Estudio</div>
+            <div class="br-module-sub">Colecciones personales de señas</div>
+          </div>
+        </div>
+        <div class="br-rules">
+
+          <div class="br-rule">
+            <div class="br-rule-head">
+              <span class="br-rule-num">1</span>
+              <span class="br-rule-name">Colecciones Personales</span>
+              <span class="br-badge estructural">🏗 Estructural (Hecho)</span>
+            </div>
+            <p class="br-rule-body">El sistema debe permitir a los usuarios crear <strong>colecciones personalizadas</strong> para agrupar señas de su interés. Se guarda el <strong>nombre</strong>, <strong>descripción</strong>, <strong>fecha de creación</strong> y el <strong>ID del usuario</strong>. Cada colección puede contener múltiples señas del catálogo oficial.</p>
+            <div class="br-rule-why">Declara una nueva entidad fuerte y resuelve una relación N:M con las señas mediante una tabla intermedia.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── MÓDULO EXTRA ── -->
+      <div class="br-module">
+        <div class="br-module-header teal">
+          <span class="br-module-icon">🔍</span>
+          <div>
+            <div class="br-module-title">MÓDULO EXTRA (Grupo de 5): Auditoría y Gestión de Fraude</div>
+            <div class="br-module-sub">Trazabilidad automática de cambios de precios</div>
+          </div>
+        </div>
+        <div class="br-rules">
+
+          <div class="br-rule">
+            <div class="br-rule-head">
+              <span class="br-rule-num">1</span>
+              <span class="br-rule-name">Auditoría de Precios</span>
+              <span class="br-badge procedimiento">⚡ Procedimiento</span>
+            </div>
+            <p class="br-rule-body">El sistema debe registrar de manera <strong>automática e invisible</strong> el historial de cambios en los precios de los planes de suscripción. Deberá almacenar el <strong>ID del plan</strong> modificado, el <strong>precio anterior</strong>, el <strong>precio nuevo</strong>, la <strong>fecha exacta</strong> de la modificación y el <strong>nombre del usuario de la base de datos</strong> que ejecutó la acción.</p>
+            <div class="br-rule-why">Establece una acción automática e inevitable (Auditoría) desencadenada por un evento previo (Actualización de Precio) controlada a través de un <code>Trigger</code> — <code>trg_auditar_cambio_precio</code>.</div>
+          </div>
+
         </div>
       </div>
 
     </section>
+
 
   </main>
 
