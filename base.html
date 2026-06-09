@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SignAI — Database Visual Map</title>
+  <meta name="description"
+    content="Mapa visual e infografía del esquema de base de datos signai_db: usuarios, suscripciones, sesiones de traducción de lengua de señas, facturación e IA." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+  <!-- ═══════════ HEADER ═══════════ -->
+  <header class="header">
+    <div class="header-badge">◆ Database Schema</div>
+    <h1>SignAI</h1>
+    <p>Plataforma de traducción de lengua de señas — sistema de usuarios, suscripciones, sesiones de IA y facturación
+    </p>
+  </header>
+
+  <!-- ═══════════ STATS BAR ═══════════ -->
+  <div class="stats-bar">
+    <span class="stat-chip blue"><span class="num">20</span> Tablas</span>
+    <span class="stat-chip purple"><span class="num">2</span> Puentes M:N</span>
+    <span class="stat-chip teal"><span class="num">7</span> Views</span>
+    <span class="stat-chip amber"><span class="num">7</span> Procedures</span>
+    <span class="stat-chip rose"><span class="num">7</span> Triggers</span>
+  </div>
+
+  <!-- ═══════════ INTRO TIP ═══════════ -->
+  <div class="intro-tip" id="introTip">
+    <span class="intro-tip-icon">💡</span>
+    <div class="intro-tip-body">
+      <strong>¿Primera vez aquí?</strong> — Empezá por <strong>Overview</strong> para ver el sistema completo, luego
+      <strong>Tablas</strong> para entender cada entidad, y terminá con <strong>Flujo</strong> para ver el ciclo de vida
+      real de una suscripción y sesión de traducción.
+    </div>
+    <button class="intro-tip-close" onclick="document.getElementById('introTip').style.display='none'"
+      aria-label="Cerrar">✕</button>
+  </div>
+
+  <!-- ═══════════ NAV TABS ═══════════ -->
+  <nav class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" data-tab="overview">🗺️ Overview <span class="tab-sub">sistema global</span></button>
+    <button class="nav-tab" data-tab="tables">📦 Tablas <span class="tab-sub">detalle por tabla</span></button>
+    <button class="nav-tab" data-tab="relations">🔗 Relaciones <span class="tab-sub">cómo se conectan</span></button>
+    <button class="nav-tab" data-tab="logic">⚙️ Lógica <span class="tab-sub">triggers · procs · views</span></button>
+    <button class="nav-tab" data-tab="flow">🌊 Flujo <span class="tab-sub">paso a paso</span></button>
+  </nav>
+
+  <main class="content">
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  TAB 1 — OVERVIEW                         -->
+    <!-- ══════════════════════════════════════════ -->
+    <section class="section active" id="sec-overview">
+
+      <h2 class="section-title">Vista Global del Sistema</h2>
+      <p class="section-desc">Todos los módulos de la base de datos SignAI y cómo se relacionan entre sí. Leé de arriba
+        hacia abajo: cada bloque depende del anterior.</p>
+
+      <!-- COLOR LEGEND -->
+      <div class="legend-bar">
+        <span class="legend-title">Colores →</span>
+        <span class="legend-item"><span class="legend-dot emerald"></span>Geografía</span>
+        <span class="legend-item"><span class="legend-dot blue"></span>Usuarios</span>
+        <span class="legend-item"><span class="legend-dot purple"></span>IA &amp; Señas</span>
+        <span class="legend-item"><span class="legend-dot amber"></span>Facturación</span>
+        <span class="legend-item"><span class="legend-dot rose"></span>Feedback &amp; Logs</span>
+        <span class="legend-item"><span class="legend-dot sky"></span>Mejoras &amp; Extras</span>
+        <span class="legend-sep">|</span>
+        <span class="legend-item"><span class="legend-arrow">→</span> depende de</span>
+        <span class="legend-item"><span class="legend-arrow">↔</span> muchos a muchos</span>
+      </div>
+
+      <div class="flow-container">
+
+        <div class="flow-label">📍 Capa 1 — Geografía · dónde vive el usuario</div>
+        <div class="flow-row">
+          <div class="flow-box emerald">PROVINCIA</div>
+          <span class="flow-arrow labeled">contiene →</span>
+          <div class="flow-box emerald">LOCALIDAD</div>
+          <span class="flow-arrow labeled">ubica →</span>
+          <div class="flow-box blue">USUARIO</div>
+        </div>
+
+        <div class="flow-arrow down">↓</div>
+
+        <div class="flow-label">👤 Capa 2 — Usuarios &amp; Planes · quién usa SignAI</div>
+        <div class="flow-row">
+          <div class="flow-box blue">USUARIO</div>
+          <span class="flow-arrow labeled">se suscribe a →</span>
+          <div class="flow-box blue">SUSCRIPCION</div>
+          <span class="flow-arrow labeled">basada en →</span>
+          <div class="flow-box blue">PLAN_SUSCRIPCION</div>
+        </div>
+        <div class="flow-row">
+          <span style="min-width:120px"></span>
+          <span style="font-size:10px; color:var(--text-muted)">(estados: Activa · Vencida · Cancelada)</span>
+        </div>
+
+        <div class="flow-arrow down">↓</div>
+
+        <div class="flow-label">🤖 Capa 3 — Traducción IA · el motor central de SignAI</div>
+        <div class="flow-row">
+          <div class="flow-box blue">USUARIO</div>
+          <span class="flow-arrow labeled">inicia →</span>
+          <div class="flow-box purple">SESION_TRADUCCION</div>
+          <span class="flow-arrow labeled">↔ detecta</span>
+          <div class="flow-box purple">SENA</div>
+        </div>
+        <div class="flow-row">
+          <div class="flow-box purple">VERSION_MODELO</div>
+          <span class="flow-arrow labeled">procesa →</span>
+          <div class="flow-box purple">SESION_TRADUCCION</div>
+          <span class="flow-arrow labeled">desde →</span>
+          <div class="flow-box purple">PLATAFORMA_ORIGEN</div>
+        </div>
+        <div class="flow-row">
+          <span style="min-width:120px"></span>
+          <span style="font-size:10px; color:var(--text-muted)">(tabla puente: SESION_SENA · guarda confianza de
+            reconocimiento)</span>
+        </div>
+
+        <div class="flow-arrow down">↓</div>
+
+        <div class="flow-label">💳 Capa 4 — Facturación · cómo se cobra la suscripción</div>
+        <div class="flow-row">
+          <div class="flow-box blue">SUSCRIPCION</div>
+          <span class="flow-arrow labeled">genera →</span>
+          <div class="flow-box amber">FACTURA</div>
+          <span class="flow-arrow labeled">detalla en →</span>
+          <div class="flow-box amber">DETALLE_FACTURA</div>
+        </div>
+        <div class="flow-row">
+          <span style="min-width:80px"></span>
+          <div class="flow-box amber">FACTURA</div>
+          <span class="flow-arrow labeled">se paga vía →</span>
+          <div class="flow-box amber">PAGO_FACTURA</div>
+          <span class="flow-arrow labeled">usa →</span>
+          <div class="flow-box amber">FORMA_PAGO + MEDIO_PAGO</div>
+        </div>
+
+        <div class="flow-arrow down">↓</div>
+
+        <div class="flow-label">⭐ Capa 5 — Feedback &amp; Logs · calidad y trazabilidad</div>
+        <div class="flow-row">
+          <div class="flow-box purple">SESION_TRADUCCION</div>
+          <span class="flow-arrow labeled">genera →</span>
+          <div class="flow-box rose">FEEDBACK_SESION</div>
+          <span style="font-size:11px; color:var(--text-muted); margin-left:8px">puntuación 1–5 ⭐ (1:1)</span>
+        </div>
+        <div class="flow-row">
+          <div class="flow-box purple">SESION_TRADUCCION</div>
+          <span class="flow-arrow labeled">registra →</span>
+          <div class="flow-box rose">LOG_ERROR</div>
+          <span style="font-size:11px; color:var(--text-muted); margin-left:8px">errores técnicos (1:N)</span>
+        </div>
+
+        <div class="flow-arrow down">↓</div>
+
+        <div class="flow-label">🌟 Módulo Extra — Colecciones &amp; Auditoría de Precios</div>
+        <div class="flow-row">
+          <div class="flow-box blue">USUARIO</div>
+          <span class="flow-arrow labeled">organiza →</span>
+          <div class="flow-box sky">COLECCION_PERSONAL</div>
+          <span class="flow-arrow labeled">↔ contiene</span>
+          <div class="flow-box sky">SENA</div>
+        </div>
+        <div class="flow-row">
+          <div class="flow-box blue">PLAN_SUSCRIPCION</div>
+          <span class="flow-arrow labeled">audita cambios →</span>
+          <div class="flow-box sky">AUDITORIA_PRECIOS</div>
+          <span style="font-size:10px; color:var(--text-muted); margin-left:8px">(vía trg_auditar_cambio_precio)</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  TAB 2 — TABLES                           -->
+    <!-- ══════════════════════════════════════════ -->
+    <section class="section" id="sec-tables">
+
+      <h2 class="section-title emerald">📍 Subsistema Geográfico</h2>
+      <p class="section-desc">Jerarquía de ubicación: una provincia tiene muchas localidades; una localidad ubica a los
+        usuarios de SignAI.</p>
+      <div class="card-grid" id="grid-geo"></div>
+
+      <h2 class="section-title">👤 Usuarios &amp; Planes de Suscripción</h2>
+      <p class="section-desc">El corazón del modelo de negocio: usuarios registrados, planes disponibles y sus
+        suscripciones activas. Un usuario puede tener múltiples suscripciones a lo largo del tiempo.</p>
+      <div class="card-grid" id="grid-users"></div>
+
+      <h2 class="section-title purple">🤖 IA &amp; Traducción de Señas</h2>
+      <p class="section-desc">El motor central de SignAI: versiones del modelo de IA, plataformas soportadas, catálogo
+        de señas y las sesiones de traducción que las detectan.</p>
+      <div class="card-grid" id="grid-ai"></div>
+
+      <h2 class="section-title amber">💳 Sistema de Facturación</h2>
+      <p class="section-desc">Cada suscripción genera una factura. La factura tiene líneas de detalle y se puede pagar
+        combinando distintas formas y medios de pago.</p>
+      <div class="card-grid" id="grid-billing"></div>
+
+      <h2 class="section-title rose">⭐ Feedback &amp; Logs de Error</h2>
+      <p class="section-desc">Calidad y trazabilidad: el usuario puntúa cada sesión (1:1) y el motor registra errores
+        técnicos (1:N) para auditoría del equipo de desarrollo.</p>
+      <div class="card-grid" id="grid-feedback"></div>
+
+      <h2 class="section-title" style="border-color: var(--accent-sky)">🌟 Módulo de Mejoras — Colecciones &amp;
+        Auditoría</h2>
+      <p class="section-desc">Funcionalidades adicionales: colecciones personales de señas organizadas por el usuario, y
+        registro de auditoría automático de cambios de precios en planes.</p>
+      <div class="card-grid" id="grid-extras"></div>
+
+      <h2 class="section-title" style="border-color: var(--accent-sky)">🔀 Tablas Puente (Muchos a Muchos)</h2>
+      <p class="section-desc">Cuando dos entidades se relacionan en ambas direcciones se usa una tabla puente.
+        <strong>SESION_SENA</strong> además guarda la confianza de reconocimiento de cada seña detectada.</p>
+      <div class="card-grid" id="grid-bridges"></div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  TAB 3 — RELATIONSHIPS                    -->
+    <!-- ══════════════════════════════════════════ -->
+    <section class="section" id="sec-relations">
+
+      <h2 class="section-title purple">🔗 Cadenas de Dependencia</h2>
+      <p class="section-desc">Una tabla <strong style="color:var(--accent-teal)">padre</strong> contiene datos que la
+        tabla <strong style="color:var(--accent-purple)">hija</strong> referencia mediante una clave foránea (FK). No
+        podés borrar el padre sin antes atender a sus hijos.</p>
+
+      <!-- Mini legend for relations -->
+      <div class="rel-key-bar">
+        <span class="rel-key-item"><span class="rel-node parent" style="font-size:11px;padding:3px 10px">PADRE</span>
+          tabla raíz, tiene PK</span>
+        <span class="rel-key-sep">·</span>
+        <span class="rel-key-item"><span class="rel-connector" style="font-size:18px;font-weight:700">→</span> depende
+          de / referencia a</span>
+        <span class="rel-key-sep">·</span>
+        <span class="rel-key-item"><span class="rel-node child" style="font-size:11px;padding:3px 10px">HIJO</span>
+          tiene FK al padre</span>
+        <span class="rel-key-sep">·</span>
+        <span class="rel-key-item"><span class="rel-node bridge" style="font-size:11px;padding:3px 10px">PUENTE</span>
+          une dos tablas</span>
+      </div>
+
+      <div class="rel-map" id="relMap"></div>
+
+      <h2 class="section-title" style="border-color: var(--accent-sky); margin-top:40px">🔀 Puentes Many-to-Many</h2>
+      <p class="section-desc">Una sesión puede reconocer <em>muchas</em> señas, y una seña puede aparecer en
+        <em>muchas</em> sesiones. Una colección personal puede contener <em>muchas</em> señas, y una seña puede estar en
+        <em>muchas</em> colecciones.</p>
+      <div class="rel-map" id="relBridges"></div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  TAB 4 — LOGIC                            -->
+    <!-- ══════════════════════════════════════════ -->
+    <section class="section" id="sec-logic">
+
+      <h2 class="section-title rose">🔒 Triggers — guardias automáticos</h2>
+      <p class="section-desc">Un trigger es una regla que se ejecuta sola cuando ocurre un evento (insertar, borrar,
+        actualizar). No necesitás llamarlo: la base de datos lo activa automáticamente como un guardia de seguridad.</p>
+      <div id="triggersContainer"></div>
+
+      <h2 class="section-title purple" style="margin-top:40px">⚡ Stored Procedures — acciones prearmadas</h2>
+      <p class="section-desc">Un procedure es como una función guardada en la base de datos. Lo llamás pasando
+        parámetros y él ejecuta una operación compleja de una sola vez, sin repetir SQL.</p>
+      <div id="proceduresContainer"></div>
+
+      <h2 class="section-title teal" style="margin-top:40px">👁️ Views — ventanas de datos</h2>
+      <p class="section-desc">Una view es una consulta SQL guardada con nombre propio. La usás como si fuera una tabla,
+        pero combina datos de varias tablas en tiempo real. Perfecta para reportes sin duplicar datos.</p>
+      <div id="viewsContainer"></div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  TAB 5 — FLOW                             -->
+    <!-- ══════════════════════════════════════════ -->
+    <section class="section" id="sec-flow">
+
+      <h2 class="section-title">🌊 Ciclo de Vida en SignAI</h2>
+      <p class="section-desc">El recorrido completo: desde que un usuario se registra hasta que completa una sesión de
+        traducción, paga su suscripción y deja su feedback.</p>
+
+      <div class="flow-container">
+
+        <div class="flow-label">Paso 1 · El usuario se registra en SignAI</div>
+        <div class="flow-row">
+          <div class="flow-box emerald">PROVINCIA → LOCALIDAD</div>
+          <span class="flow-arrow labeled">ubica →</span>
+          <div class="flow-box blue">USUARIO</div>
+          <span style="font-size:11px;color:var(--text-muted);margin-left:8px">sp_alta_usuario_freemium()</span>
+        </div>
+
+        <div class="flow-arrow down">↓</div>
+
+        <div class="flow-label">Paso 2 · El usuario elige un plan y se suscribe</div>
+        <div class="flow-row">
+          <div class="flow-box blue">USUARIO</div>
+          <span class="flow-arrow labeled">contrata →</span>
+          <div class="flow-box blue">SUSCRIPCION</div>
+          <span class="flow-arrow labeled">basada en →</span>
+          <div class="flow-box blue">PLAN_SUSCRIPCION</div>
+        </div>
+        <div class="flow-row">
+          <span style="min-width:60px"></span>
+          <span style="font-size:12px;color:var(--accent-rose);margin:0 8px">← 🔒 trigger valida fechas (fin &gt;
+            inicio)</span>
+        </div>
+
+        <div class="flow-arrow down">↓</div>
+
+        <div class="flow-label">Paso 3 · Se emite la factura y se cobra</div>
+        <div class="flow-row">
+          <div class="flow-box blue">SUSCRIPCION</div>
+          <span class="flow-arrow labeled">genera →</span>
+          <div class="flow-box amber">FACTURA</div>
+          <span class="flow-arrow labeled">tiene líneas →</span>
+          <div class="flow-box amber">DETALLE_FACTURA</div>
+        </div>
+        <div class="flow-row">
+          <span style="min-width:60px"></span>
+          <div class="flow-box amber">PAGO_FACTURA</div>
+          <span style="font-size:12px;color:var(--accent-rose);margin:0 8px">← 🔒 trigger bloquea borrado si tiene
+            pagos</span>
+        </div>
+        <div class="flow-row">
+          <div class="flow-box amber">FORMA_PAGO</div>
+          <span class="flow-arrow labeled">+</span>
+          <div class="flow-box amber">MEDIO_PAGO</div>
+          <span style="font-size:11px;color:var(--text-muted);margin-left:8px">ej: "Pago Anual Adelantado" + "Tarjeta de
+            Crédito"</span>
+        </div>
+
+        <div class="flow-arrow down">↓</div>
+
+        <div class="flow-label">Paso 4 · El usuario inicia una sesión de traducción</div>
+        <div class="flow-row">
+          <div class="flow-box blue">USUARIO</div>
+          <span class="flow-arrow labeled">inicia →</span>
+          <div class="flow-box purple">SESION_TRADUCCION</div>
+          <span style="font-size:12px;color:var(--accent-rose);margin:0 8px">← 🔒 trigger valida suscripción
+            activa</span>
+        </div>
+        <div class="flow-row">
+          <div class="flow-box purple">VERSION_MODELO</div>
+          <span class="flow-arrow labeled">procesa →</span>
+          <div class="flow-box purple">SESION_TRADUCCION</div>
+          <span class="flow-arrow labeled">desde →</span>
+          <div class="flow-box purple">PLATAFORMA_ORIGEN</div>
+        </div>
+
+        <div class="flow-arrow down">↓</div>
+
+        <div class="flow-label">Paso 5 · El motor detecta señas con nivel de confianza</div>
+        <div class="flow-row">
+          <div class="flow-box purple">SESION_TRADUCCION</div>
+          <span class="flow-arrow labeled">↔ reconoce</span>
+          <div class="flow-box purple">SENA</div>
+          <span style="font-size:11px;color:var(--text-muted);margin-left:8px">vía SESION_SENA (confianza 0–100%)</span>
+        </div>
+        <div class="flow-row">
+          <span style="min-width:60px"></span>
+          <span style="font-size:12px;color:var(--accent-rose);margin:0 8px">← 🔒 trigger rechaza confianza fuera de
+            rango [0, 100]</span>
+        </div>
+
+        <div class="flow-arrow down">↓</div>
+
+        <div class="flow-label">Paso 6 · El usuario puntúa la sesión y se registran errores</div>
+        <div class="flow-row">
+          <div class="flow-box purple">SESION_TRADUCCION</div>
+          <span class="flow-arrow labeled">genera →</span>
+          <div class="flow-box rose">FEEDBACK_SESION</div>
+          <span style="font-size:12px;color:var(--text-secondary);margin-left:8px">⭐ puntuación 1–5 + comentario
+            (1:1)</span>
+        </div>
+        <div class="flow-row">
+          <div class="flow-box purple">SESION_TRADUCCION</div>
+          <span class="flow-arrow labeled">registra →</span>
+          <div class="flow-box rose">LOG_ERROR</div>
+          <span style="font-size:11px;color:var(--text-muted);margin-left:8px">incidentes técnicos del motor de
+            IA</span>
+        </div>
+
+      </div>
+
+      <h2 class="section-title rose" style="margin-top:40px">🔒 Impacto de los Triggers</h2>
+      <p class="section-desc">Los triggers actúan como barreras de seguridad invisibles. Se disparan solos cuando
+        alguien intenta una operación prohibida.</p>
+
+      <div class="flow-container">
+        <div class="flow-row">
+          <div class="flow-box blue" style="font-size:11px">INSERT en SESION_SENA</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box rose">trg_validar_confianza_ia</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box amber">❌ bloquea si confianza &lt; 0 o &gt; 100</div>
+        </div>
+        <div style="height:12px"></div>
+        <div class="flow-row">
+          <div class="flow-box blue" style="font-size:11px">DELETE en FACTURA</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box rose">trg_evitar_borrado_factura_pagada</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box amber">❌ bloquea si tiene pagos registrados</div>
+        </div>
+        <div style="height:12px"></div>
+        <div class="flow-row">
+          <div class="flow-box blue" style="font-size:11px">INSERT en SUSCRIPCION</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box rose">trg_fechas_suscripcion_coherentes</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box amber">❌ bloquea si fecha_fin ≤ fecha_inicio</div>
+        </div>
+        <div style="height:12px"></div>
+        <div class="flow-row">
+          <div class="flow-box blue" style="font-size:11px">UPDATE en PLAN_SUSCRIPCION</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box rose">trg_prevenir_precio_negativo</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box amber">❌ bloquea si precio_mensual &lt; 0</div>
+        </div>
+        <div style="height:12px"></div>
+        <div class="flow-row">
+          <div class="flow-box blue" style="font-size:11px">DELETE en USUARIO</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box rose">trg_proteger_usuario_facturado</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box amber">❌ bloquea si tiene historial de facturas</div>
+        </div>
+        <div style="height:12px"></div>
+        <div class="flow-row">
+          <div class="flow-box blue" style="font-size:11px">UPDATE precio en PLAN</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box rose">trg_auditar_cambio_precio</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box amber">✅ guarda historial en AUDITORIA_PRECIOS</div>
+        </div>
+        <div style="height:12px"></div>
+        <div class="flow-row">
+          <div class="flow-box blue" style="font-size:11px">INSERT en SESION_TRADUCCION</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box rose">trg_control_acceso_sesion</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box amber">❌ bloquea si suscripción no Activa</div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ═══════════ THEME TOGGLE ═══════════ -->
+  <button id="themeToggle" aria-label="Cambiar tema">
+    <span class="toggle-icon">☀️</span>
+    <span class="toggle-label">Modo claro</span>
+  </button>
+
+  <script>
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    // Cargar tema desde localStorage
+    if (localStorage.getItem('theme') === 'light') {
+      body.classList.add('light-mode');
+      themeToggle.querySelector('.toggle-icon').textContent = '🌙';
+      themeToggle.querySelector('.toggle-label').textContent = 'Modo oscuro';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      body.classList.toggle('light-mode');
+      const isLight = body.classList.contains('light-mode');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      themeToggle.querySelector('.toggle-icon').textContent = isLight ? '🌙' : '☀️';
+      themeToggle.querySelector('.toggle-label').textContent = isLight ? 'Modo oscuro' : 'Modo claro';
+    });
+  </script>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
